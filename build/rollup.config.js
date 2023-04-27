@@ -1,4 +1,4 @@
-const vue = require('rollup-plugin-vue2');
+const vue = require('rollup-plugin-vue');
 const css = require('rollup-plugin-css-only');
 const babel = require('rollup-plugin-babel');
 const nodeResolve = require('rollup-plugin-node-resolve');
@@ -48,6 +48,7 @@ module.exports = exports = function(
 
   return {
     input: defineInWindow ? 'lib/window.js' : 'lib/index.js',
-    plugins
+    plugins,
+    external: ['vue'],
   };
 }

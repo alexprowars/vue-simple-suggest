@@ -20,7 +20,7 @@
         :aria-labelledby="listId"
         :class="styles.suggestions"
       >
-        <li v-if="!!this.$scopedSlots['misc-item-above']" :class="styles.miscItemAbove">
+        <li v-if="!!this.$slots['misc-item-above']" :class="styles.miscItemAbove">
           <slot name="misc-item-above"
             :suggestions="suggestions"
             :query="text"
@@ -48,7 +48,7 @@
           </slot>
         </li>
 
-        <li v-if="!!this.$scopedSlots['misc-item-below']" :class="styles.miscItemBelow">
+        <li v-if="!!this.$slots['misc-item-below']" :class="styles.miscItemBelow">
           <slot name="misc-item-below"
             :suggestions="suggestions"
             :query="text"
@@ -71,10 +71,6 @@ import {
 export default {
   name: 'vue-simple-suggest',
   inheritAttrs: false,
-  model: {
-    prop: 'value',
-    event: 'input'
-  },
   props: {
     styles: {
       type: Object,
@@ -130,7 +126,7 @@ export default {
       type: Boolean,
       default: false
     },
-    value: {},
+    modelValue: {},
     mode: {
       type: String,
       default: 'input',
@@ -145,14 +141,9 @@ export default {
   watch: {
     mode: {
       handler(current, old) {
-        this.constructor.options.model.event = current
-
-        // Can be null if the component is root
-        this.$parent && this.$parent.$forceUpdate()
-
         this.$nextTick(() => {
           if (current === 'input') {
-            this.$emit('input', this.text)
+            this.$emit('update:modelValue', this.text)
           } else {
             this.$emit('select', this.selected)
           }
@@ -160,7 +151,7 @@ export default {
       },
       immediate: true
     },
-    value: {
+    modelValue: {
       handler(current) {
         if (typeof current !== 'string') {
           current = this.displayProperty(current)
@@ -180,7 +171,7 @@ export default {
       inputElement: null,
       canSend: true,
       timeoutInstance: null,
-      text: this.value,
+      text: this.modelValue,
       isPlainSuggestion: false,
       isClicking: false,
       isInFocus: false,
@@ -190,6 +181,7 @@ export default {
       listId: `${this._uid}-suggestions`
     }
   },
+  emits: ['update:modelValue', 'select', 'hover', 'hide-list', 'show-list', 'suggestion-click', 'blur', 'focus', 'request-start', 'request-done', 'request-failed'],
   computed: {
     listIsRequest () {
       return typeof this.list === 'function'
@@ -239,7 +231,7 @@ export default {
       }
     })
   },
-  beforeDestroy () {
+  beforeUnmount () {
     this.prepareEventHandlers(false)
   },
   methods: {
@@ -289,7 +281,7 @@ export default {
       return true
     },
     miscSlotsAreEmpty () {
-      const slots = ['misc-item-above', 'misc-item-below'].map(s => this.$scopedSlots[s])
+      const slots = ['misc-item-above', 'misc-item-below'].map(s => this.$slots[s])
 
       if (slots.every(s => !!s)) {
         return slots.every(this.isScopedSlotEmpty.bind(this))
@@ -343,7 +335,7 @@ export default {
       this.$nextTick(() => {
         this.inputElement.value = text
         this.text = text
-        this.$emit('input', text)
+        this.$emit('update:modelValue', text)
       })
     },
     select (item) {
@@ -526,7 +518,7 @@ export default {
       const value = !inputEvent.target ? inputEvent : inputEvent.target.value
 
       this.updateTextOutside(value)
-      this.$emit('input', value)
+      this.$emit('update:modelValue', value)
     },
     updateTextOutside(value) {
       if (this.text === value) { return }
@@ -555,7 +547,7 @@ export default {
           let newList = await this.getSuggestions(this.text)
 
           if (textBeforeRequest === this.text) {
-            this.$set(this, 'suggestions', newList)
+            this.suggestions = newList;
           }
         }
       }
