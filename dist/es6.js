@@ -274,14 +274,18 @@ function _await(value, then, direct) {
         input: this.onInput
       }, keyEventsList);
 
-      for (const event in eventsList) {
-        this.input[binder](event, eventsList[event]);
+      if (this.input) {
+        for (const event in eventsList) {
+          this.input[binder](event, eventsList[event]);
+        }
       }
 
-      const listenerBinder = enable ? 'addEventListener' : 'removeEventListener';
+      if (this.inputElement) {
+        const listenerBinder = enable ? 'addEventListener' : 'removeEventListener';
 
-      for (const event in keyEventsList) {
-        this.inputElement[listenerBinder](event, keyEventsList[event]);
+        for (const event in keyEventsList) {
+          this.inputElement[listenerBinder](event, keyEventsList[event]);
+        }
       }
     },
     isScopedSlotEmpty(slot) {

@@ -297,14 +297,18 @@ function _await(value, then, direct) {
         input: this.onInput
       }, keyEventsList);
 
-      for (var event in eventsList) {
-        this.input[binder](event, eventsList[event]);
+      if (this.input) {
+        for (var event in eventsList) {
+          this.input[binder](event, eventsList[event]);
+        }
       }
 
-      var listenerBinder = enable ? 'addEventListener' : 'removeEventListener';
+      if (this.inputElement) {
+        var listenerBinder = enable ? 'addEventListener' : 'removeEventListener';
 
-      for (var _event in keyEventsList) {
-        this.inputElement[listenerBinder](_event, keyEventsList[_event]);
+        for (var _event in keyEventsList) {
+          this.inputElement[listenerBinder](_event, keyEventsList[_event]);
+        }
       }
     },
     isScopedSlotEmpty: function isScopedSlotEmpty(slot) {
